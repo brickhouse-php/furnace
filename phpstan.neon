@@ -1,0 +1,15 @@
+parameters:
+
+    paths:
+        - src/
+
+    # Level 9 is the highest level
+    level: 5
+
+    ignoreErrors:
+        - identifier: return.unusedType
+#
+#    excludePaths:
+#        - ./*/*/FileToBeExcluded.php
+#
+#    checkMissingIterableValueType: false

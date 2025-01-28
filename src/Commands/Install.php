@@ -42,14 +42,6 @@ class Install extends Command
     public null|bool $useTypescript = null;
 
     /**
-     * Defines whether to create a configuration file for esbuild, even if not requried.
-     *
-     * @var bool
-     */
-    #[Option('create-config', null, 'Create a configuration file, even if not required.', InputOption::NEGATABLE)]
-    public bool $createConfig = false;
-
-    /**
      * Defines whether to build the assets after installation.
      *
      * @var bool
@@ -239,12 +231,6 @@ class Install extends Command
      */
     protected function createEsbuildConfiguration(): bool
     {
-        // If esbuild doesn't require a custom configuration, we can rely on the built-in
-        // configuration which ships with Furnace.
-        if (!$this->needsCustomConfiguration()) {
-            return true;
-        }
-
         // Read the stub from the package root.
         $configurationStub = file_get_contents(__DIR__ . '/../../Stubs/build.stub.mjs');
 
@@ -292,18 +278,6 @@ class Install extends Command
         }
 
         return true;
-    }
-
-    /**
-     * Determines whether a custom configuration is required for Esbuild.
-     *
-     * @return bool
-     */
-    protected function needsCustomConfiguration(): bool
-    {
-        // As long as no config was explicitly required, if no plugins are required,
-        // we can use the built-in configuration for Esbuild.
-        return !empty($this->plugins) && !$this->createConfig;
     }
 
     /**

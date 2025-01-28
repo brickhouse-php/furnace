@@ -37,6 +37,7 @@
         "brickhouse/config": "dev-main"
     },
     "require-dev": {
+        "brickhouse/process": "dev-main",
         "phpstan/phpstan": "^2.0",
         "pestphp/pest": "^3.7",
         "pestphp/pest-plugin-type-coverage": "^3.2"

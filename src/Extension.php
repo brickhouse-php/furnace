@@ -26,6 +26,7 @@ class Extension extends \Brickhouse\Core\Extension
     {
         $this->addCommands([
             Commands\Build::class,
+            Commands\Install::class,
         ]);
     }
 }

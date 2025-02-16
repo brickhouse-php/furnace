@@ -4,4 +4,4 @@ Brickhouse Furnace is a wrapper around ESBuild, allowing Brickhouse applications
 
 ## License
 
-Brickhouse Routing is open-sourced software licensed under the [MIT license](LICENSE.md).
+Brickhouse Furnace is open-sourced software licensed under the [MIT license](LICENSE.md).

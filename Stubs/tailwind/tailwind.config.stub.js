@@ -3,7 +3,7 @@ import colors from 'tailwindcss/colors';
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./resources/views/**/*.html.php",
+    "./resources/views/**/*.php.html",
   ],
   theme: {
     extend: {
@@ -14,4 +14,3 @@ export default {
   },
   plugins: [],
 }
-

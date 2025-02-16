@@ -4,12 +4,13 @@ namespace Brickhouse\Furnace\Commands;
 
 use Brickhouse\Console\Attributes\Option;
 use Brickhouse\Console\Command;
+use Brickhouse\Console\GeneratorCommand;
 use Brickhouse\Console\InputOption;
 
 use function \Brickhouse\Console\Prompts\confirm;
 use function \Brickhouse\Console\Prompts\multiselect;
 
-class Install extends Command
+class Install extends GeneratorCommand
 {
     /**
      * The name of the console command.
@@ -30,8 +31,8 @@ class Install extends Command
      *
      * @var bool
      */
-    #[Option('quiet', 'q', 'Supresses command output.', InputOption::OPTIONAL)]
-    public bool $quiet = false;
+    #[Option('verbose', 'v', 'Increases verbosity.', InputOption::OPTIONAL)]
+    public bool $verbose = false;
 
     /**
      * Defines whether to create TypeScript assets instead of JavaScript files.
@@ -57,6 +58,14 @@ class Install extends Command
     protected array $plugins = [];
 
     /**
+     * @inheritdoc
+     */
+    protected function sourceRoot(): string
+    {
+        return __DIR__ . '/../../Stubs/';
+    }
+
+    /**
      * Execute the console command.
      */
     public function handle(): int
@@ -64,11 +73,6 @@ class Install extends Command
         if (!class_exists('\Brickhouse\Process\Process')) {
             $this->error('Brickhouse\Process could not be found. Have you installed development packages?');
             return 1;
-        }
-
-        $assetsDirectory = 'assets';
-        if (!@is_dir($assetsDirectory)) {
-            @mkdir($assetsDirectory, recursive: true);
         }
 
         $plugins = multiselect(
@@ -134,7 +138,7 @@ class Install extends Command
      */
     protected function installPackage(string $package): void
     {
-        if (!$this->quiet) {
+        if (!$this->verbose) {
             $this->info("Installing {$package}...");
         }
 
@@ -143,10 +147,7 @@ class Install extends Command
             $packageManager = 'npm';
 
             // Copy the package.json stub to the project if none is found.
-            file_put_contents(
-                'package.json',
-                file_get_contents(__DIR__ . '/../../Stubs/package.stub.json')
-            );
+            $this->copy('package.stub.json', 'package.json');
         }
 
         $command = match ($packageManager) {
@@ -156,14 +157,14 @@ class Install extends Command
             'deno' => "deno add --dev npm:{$package}",
         };
 
-        if (!$this->quiet) {
+        if ($this->verbose) {
             $this->writeln("> {$command}");
         }
 
         \Brickhouse\Process\Process::execute($command, callback: function (int $mode, string $text) {
             if ($mode === \Brickhouse\Process\Process::STDERR) {
                 $this->error($text);
-            } else if (!$this->quiet) {
+            } else if ($this->verbose) {
                 $this->writeln($text);
             }
         });
@@ -231,28 +232,13 @@ class Install extends Command
      */
     protected function createEsbuildConfiguration(): bool
     {
-        // Read the stub from the package root.
-        $configurationStub = file_get_contents(__DIR__ . '/../../Stubs/build.stub.mjs');
+        $pluginImports = array_column($this->plugins, 'import');
+        $pluginDefinitions = array_column($this->plugins, 'plugin');
 
-        // Update the imports
-        $configurationStub = str_ireplace(
-            '// === ESBUILD_IMPORTS ===',
-            join("\n", array_column($this->plugins, 'import')),
-            $configurationStub,
-        );
-
-        // Update the esbuild plugins
-        $configurationStub = str_ireplace(
-            '// === ESBUILD_PLUGINS ===',
-            join("\n    ", array_column($this->plugins, 'plugin')),
-            $configurationStub,
-        );
-
-        // Create the build script into the project
-        file_put_contents(
-            'assets' . DIRECTORY_SEPARATOR . 'build.mjs',
-            $configurationStub
-        );
+        $this->copy('build.stub.mjs', path('assets', 'build.mjs'), [
+            'esbuildImports' => join("\n", $pluginImports),
+            'esbuildPlugins' => join("\n    ", $pluginDefinitions),
+        ]);
 
         return true;
     }
@@ -264,18 +250,9 @@ class Install extends Command
      */
     protected function createInitialAssets(): bool
     {
-        // Copy JS/TS stub to project directory
-        if ($this->useTypescript === true) {
-            file_put_contents(
-                'assets' . DIRECTORY_SEPARATOR . 'app.ts',
-                file_get_contents(__DIR__ . '/../../Stubs/app.stub.ts')
-            );
-        } else {
-            file_put_contents(
-                'assets' . DIRECTORY_SEPARATOR . 'app.js',
-                file_get_contents(__DIR__ . '/../../Stubs/app.stub.js')
-            );
-        }
+        $ext = $this->useTypescript ? 'ts' : 'js';
+
+        $this->copy("app.stub.{$ext}", "assets/app.{$ext}");
 
         return true;
     }
@@ -300,7 +277,7 @@ class Install extends Command
                 return false;
             }
 
-            if (!$this->quiet) {
+            if ($this->verbose) {
                 $this->info('Creating backup of "tailwind.config.js"...');
             }
 
@@ -309,30 +286,29 @@ class Install extends Command
         }
 
         // Copy configuration stub to project directory
-        file_put_contents(
-            'tailwind.config.js',
-            file_get_contents(__DIR__ . '/../../Stubs/tailwind/tailwind.config.stub.js')
-        );
+        $this->copy('tailwind/tailwind.config.stub.js', 'tailwind.config.js');
 
         // Copy CSS stub to project directory
-        file_put_contents(
-            'assets' . DIRECTORY_SEPARATOR . 'app.css',
-            file_get_contents(__DIR__ . '/../../Stubs/tailwind/app.stub.css')
-        );
+        $this->copy('tailwind/app.stub.css', 'assets/app.css');
 
         // Prepend CSS import in asset script.
-        $header = <<<EOF
-        import './app.css'
-
-        EOF;
-
         if ($this->useTypescript === true) {
-            $scriptFile = 'assets' . DIRECTORY_SEPARATOR . 'app.ts';
-        } else {
-            $scriptFile = 'assets' . DIRECTORY_SEPARATOR . 'app.js';
-        }
+            $this->create('assets/app.ts', <<<'EOF'
+            import './app.css'
 
-        file_put_contents($scriptFile, $header . "\n" . file_get_contents($scriptFile));
+            function printGreeting(): void {
+              console.log("Hello, world!");
+            }
+            EOF);
+        } else {
+            $this->create('assets/app.js', <<<'EOF'
+            import './app.css'
+
+            function printGreeting() {
+              console.log("Hello, world!");
+            }
+            EOF);
+        }
 
         $this->plugins[] = [
             'import' => 'import tailwindPlugin from "esbuild-plugin-tailwindcss";',

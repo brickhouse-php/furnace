@@ -1,71 +1,73 @@
 {
-    "name": "brickhouse/furnace",
-    "description": "Pipeline which utilizes Esbuild to build assets for production.",
-    "type": "library",
-    "license": "MIT",
-    "keywords": [
-        "esbuild",
-        "framework",
-        "brickhouse",
-        "mvc"
-    ],
-    "homepage": "https://github.com/brickhouse-php/furnace",
-    "support": {
-        "issues": "https://github.com/brickhouse-php/furnace/issues",
-        "source": "https://github.com/brickhouse-php/furnace"
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "authors": [
-        {
-            "name": "Max T. Kristiansen",
-            "email": "me@maxtrier.dk",
-            "role": "Author",
-            "homepage": "https://maxtrier.dk"
-        }
-    ],
-    "scripts": {
-        "test": [
-            "XDEBUG_MODE=coverage pest --coverage --min=100",
-            "XDEBUG_MODE=coverage pest --type-coverage --min=100"
-        ],
-        "bench": "phpbench run --report=default",
-        "bench:compare": "phpbench run --report=micro-compare --group compare"
-    },
-    "require": {
-        "php": "^8.4",
-        "brickhouse/config": "dev-main"
-    },
-    "require-dev": {
-        "brickhouse/process": "dev-main",
-        "phpstan/phpstan": "^2.0",
-        "pestphp/pest": "^3.7",
-        "pestphp/pest-plugin-type-coverage": "^3.2"
-    },
-    "autoload": {
-        "psr-4": {
-            "Brickhouse\\Furnace\\": "src/"
-        },
-        "classmap": [
-            "src/"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Brickhouse\\Furnace\\Tests\\": "tests/",
-            "Brickhouse\\Furnace\\Benchmarks\\": "bench/"
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
-    },
-    "extra": {
-        "brickhouse": {
-            "extensions": [
-                "\\Brickhouse\\Furnace\\Extension"
-            ]
-        }
+  "name": "brickhouse/furnace",
+  "description": "Pipeline which utilizes Esbuild to build assets for production.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "esbuild",
+    "framework",
+    "brickhouse",
+    "mvc"
+  ],
+  "homepage": "https://github.com/brickhouse-php/furnace",
+  "support": {
+    "issues": "https://github.com/brickhouse-php/furnace/issues",
+    "source": "https://github.com/brickhouse-php/furnace"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "authors": [
+    {
+      "name": "Max T. Kristiansen",
+      "email": "me@maxtrier.dk",
+      "role": "Author",
+      "homepage": "https://maxtrier.dk"
     }
+  ],
+  "scripts": {
+    "test": [
+      "XDEBUG_MODE=coverage pest --coverage --min=100",
+      "XDEBUG_MODE=coverage pest --type-coverage --min=100"
+    ],
+    "bench": "phpbench run --report=default",
+    "bench:compare": "phpbench run --report=micro-compare --group compare"
+  },
+  "require": {
+    "php": "^8.4",
+    "brickhouse/config": "dev-main",
+    "brickhouse/console": "dev-main",
+    "brickhouse/log": "dev-main"
+  },
+  "require-dev": {
+    "brickhouse/process": "dev-main",
+    "phpstan/phpstan": "^2.0",
+    "pestphp/pest": "^3.7",
+    "pestphp/pest-plugin-type-coverage": "^3.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Brickhouse\\Furnace\\": "src/"
+    },
+    "classmap": [
+      "src/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Brickhouse\\Furnace\\Tests\\": "tests/",
+      "Brickhouse\\Furnace\\Benchmarks\\": "bench/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "brickhouse": {
+      "extensions": [
+        "\\Brickhouse\\Furnace\\Extension"
+      ]
+    }
+  }
 }

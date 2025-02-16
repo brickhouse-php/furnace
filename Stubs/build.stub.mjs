@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild'
-// === ESBUILD_IMPORTS ===
+{{{esbuildImports}}}
 
 await esbuild.build({
   /**
@@ -40,6 +40,6 @@ await esbuild.build({
    * Plugins can extend esbuild to allow for TailwindCSS, PostCSS, Markdown and others.
    */
   plugins: [
-    // === ESBUILD_PLUGINS ===
+    {{{esbuildPlugins}}}
   ]
 });
